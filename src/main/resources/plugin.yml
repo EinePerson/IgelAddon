@@ -1,0 +1,10 @@
+name: IgelAddon
+version: '${project.version}'
+main: de.igelstudios.igeladdon.IgelAddon
+api-version: '1.20'
+authors: [ IgelStudios ]
+commands:
+  server-info:
+  gen:
+  info:
+  apt:
