@@ -10,6 +10,8 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Objects;
+
 public final class IgelAddon extends JavaPlugin {
     private static IgelAddon plugin;
     private InfoCommand info;
@@ -30,6 +32,8 @@ public final class IgelAddon extends JavaPlugin {
         apt = new APT();
         this.getCommand("apt").setExecutor(apt);
         this.getCommand("apt").setTabCompleter(apt);
+        this.getCommand("info").setExecutor(info);
+        this.getCommand("info").setTabCompleter(info);
         chat = new ChatEvent();
         Bukkit.getPluginManager().registerEvents(chat,this);
         Bukkit.getPluginManager().registerEvents(new DeathEvent(),this);
@@ -42,8 +46,15 @@ public final class IgelAddon extends JavaPlugin {
     }
 
     public void sendToOps(Component msg){
-        Bukkit.getOnlinePlayers().forEach(player -> {
-            if(player.isOp())player.sendMessage(msg);
+        Bukkit.getOperators().forEach(op -> {
+            if(op.getPlayer() != null)op.getPlayer().sendMessage(msg);
+        });
+    }
+
+    public static void broadcast(String msg){
+        Bukkit.getLogger().info(msg);
+        Bukkit.getOperators().forEach(op -> {
+            if(op.getPlayer() != null)op.getPlayer().sendPlainMessage(msg);
         });
     }
 

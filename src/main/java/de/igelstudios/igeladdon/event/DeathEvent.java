@@ -29,8 +29,8 @@ public class DeathEvent implements Listener {
 
     @EventHandler
     public void death(PlayerDeathEvent e){
+        Bukkit.getOnlinePlayers().forEach((player) -> player.sendMessage(e.deathMessage()));
         Bukkit.getOnlinePlayers().forEach(player -> {
-            player.sendMessage(e.deathMessage());
             if(!e.getPlayer().equals(player))IgelAddon.getPlugin().getChat().sendAs(player,"f");
         });
         e.deathMessage(Component.text(""));

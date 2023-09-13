@@ -16,6 +16,7 @@ public class ChatEvent implements Listener {
     public void chat(AsyncChatEvent e){
         e.setCancelled(true);
         sendAs(e.getPlayer(),e.message());
+        if(true)return;
         StringBuilder msg = new StringBuilder();
         try {
             Field field = e.message().getClass().getDeclaredField("content");

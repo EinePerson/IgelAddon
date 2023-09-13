@@ -8,7 +8,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,21 +18,29 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class InfoCommand implements CommandExecutor {
+public class InfoCommand implements CommandExecutor, TabCompleter {
     private final Map<Character,TextColor> cols = map();
     List<Component> msg;
     String txt;
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        if(args.length == 2){
+        if(args != null && args.length >= 2){
             if(!sender.isOp()){
                 sender.sendMessage(Component.text("No rights!").color(NamedTextColor.RED));
                 return true;
             }else if(args[0].equals("set")){
-                txt = args[1];
+                StringBuilder builder = new StringBuilder();
+                for (int i = 1; i < args.length; i++) {
+                    builder.append(args[i]);
+                }
+                txt = builder.toString();
                 parse();
             }else if(args[0].equals("add")){
-                txt += args[1];
+                StringBuilder builder = new StringBuilder();
+                for (int i = 1; i < args.length; i++) {
+                    builder.append(args[i]);
+                }
+                txt += builder.toString();
                 parse();
             }
         }
@@ -40,41 +50,17 @@ public class InfoCommand implements CommandExecutor {
 
     private void parse(){
         msg = new ArrayList<>();
-        String text = "";
-        text += txt + "$f";
-        text = text.replace('_',' ');
 
-        char[] c = text.toCharArray();
-        int j = 0;
-        for (int i = 0; i < c.length; i++) {
-            if(c[i] == '\n'){
-                msg.add(parse(new String(c,j,i-j)));
-                j = i;
-            }
-        }
-    }
-
-    private Component parse(String txt){
         char[] c = txt.toCharArray();
-        Component comp = Component.text("");
-        List<String> colorsSt = new ArrayList<>();
-        List<TextColor> colorTx = new ArrayList<>();
         int j = 0;
-        for (int i = 0; i < c.length; i++) {
-            if(c[i] == '$'){
-                i++;
-                colorsSt.add(new String(c,j,i - j - 1));
-                colorTx.add(col(c[i++]));
+        for (int i = 0; i < c.length - 1; i++) {
+            if(c[i] == '\\' && c[i + 1] == 'n'){
+                msg.add(Component.text(new String(c,j,i-j)).color(NamedTextColor.WHITE));
+                i += 2;
                 j = i;
             }
         }
-
-        for (int i = 0;i < colorsSt.size();i++) {
-            String s = colorsSt.get(i);
-            TextColor textColor = colorTx.get(i);
-            comp = comp.append(Component.text(s).color(textColor));
-        }
-        return comp;
+        msg.add(Component.text(new String(c,j,c.length-j)));
     }
 
     private TextColor col(char c){
@@ -120,5 +106,12 @@ public class InfoCommand implements CommandExecutor {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender commandSender, @NotNull Command command, @NotNull String s, @NotNull String[] args) {
+        if(!commandSender.isOp())return null;
+        if(args.length == 1)return List.of("set","add");
+        else return List.of("<info>");
     }
 }

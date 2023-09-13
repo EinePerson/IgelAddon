@@ -103,8 +103,7 @@ public class APT implements CommandExecutor, TabCompleter {
         modules.forEach((key,module) -> {
             try(InputStream stream = new URL(module).openStream()) {
                 File jar = new File(Config.PLUGINS + key + ".jar");
-                Bukkit.getLogger().info(jar.getAbsolutePath());
-                if(!jar.createNewFile())throw new RuntimeException("Could not create file: " + jar.getAbsolutePath());
+                if(!jar.exists() && !jar.createNewFile())throw new RuntimeException("Could not create file: " + jar.getAbsolutePath());
                 Files.write(jar.toPath(),stream.readAllBytes());
             }catch (IOException e){
                 throw new RuntimeException(e);
